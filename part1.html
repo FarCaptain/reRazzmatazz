@@ -1,0 +1,159 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Making your first Phaser 3 Game - Part 1</title>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 800,
+        height: 600,
+        physics: {
+        default: 'arcade',
+            arcade: {
+                gravity: { y: 0 },
+                debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update
+        }
+    };
+
+    var game = new Phaser.Game(config);
+    var bullets;
+    var bear;
+    var speed;
+    var lastFired = 0;
+
+    function preload ()
+    {
+        this.load.image('sky', 'assets/sky.png');
+        this.load.image('iceberg', 'assets/iceberg.png');
+        this.load.image('star', 'assets/star.png');
+        this.load.image('bomb', 'assets/bomb.png');
+        this.load.image('bullet', 'assets/bullet.png');
+        this.load.image('gun', 'assets/gun.png');
+        this.load.spritesheet('bear', 
+            'assets/dude.png',
+            { frameWidth: 32, frameHeight: 48 }
+        );
+    }
+
+    function create ()
+    {
+        this.add.image(400, 300, 'sky');
+        this.add.image(400, 250, 'iceberg').setScale(3);
+        // 300~500 150~350
+
+        bear = this.physics.add.sprite(320, 160, 'bear');
+
+        gun = this.physics.add.sprite(100, 600, 'gun').setScale(0.3);
+        gun.setCollideWorldBounds(true);
+
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('bear', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'turn',
+            frames: [ { key: 'bear', frame: 4 } ],
+            frameRate: 20
+        });
+
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('bear', { start: 5, end: 8 }),
+            frameRate: 10,
+            repeat: -1
+        });
+
+        cursors = this.input.keyboard.createCursorKeys();
+
+        var Bullet = new Phaser.Class({
+
+            Extends: Phaser.GameObjects.Image,
+
+            initialize:
+
+            function Bullet (scene)
+            {
+                Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
+
+                this.speed = Phaser.Math.GetSpeed(800, 1);
+            },
+
+            fire: function (x, y)
+            {
+                this.setPosition(x, y - 50);
+
+                this.setActive(true);
+                this.setVisible(true);
+
+                // Phaser.gameObject.physics.add.collider(bear, this);
+            },
+
+            update: function (time, delta)
+            {
+                this.y -= this.speed * delta;
+
+                if (this.y < -50)
+                {
+                    this.setActive(false);
+                    this.setVisible(false);
+                }
+            }
+
+        });
+
+        bullets = this.add.group({
+        classType: Bullet,
+        maxSize: 3,
+        runChildUpdate: true
+        });
+    }
+
+    function update (time, delta)
+    {
+        gun.setVelocityX(0);
+        if (cursors.left.isDown)
+        {
+            gun.setVelocityX(-400);
+        }
+        else if (cursors.right.isDown)
+        {
+            gun.setVelocityX(400);
+        }
+        if (cursors.space.isDown && time > lastFired)
+        {
+            // move&shooting is not allowed
+            var bullet = bullets.get();
+
+            if (bullet)
+            {
+                bullet.fire(gun.x, gun.y);
+
+                lastFired = time + 500;
+            }
+        }
+    }
+
+</script>
+
+</body>
+</html>
