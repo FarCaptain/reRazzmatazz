@@ -29,14 +29,50 @@
             preload: preload,
             create: create,
             update: update
+
+            // extend:
         }
     };
 
     var game = new Phaser.Game(config);
     var bullets;
     var bear;
+    var fishPos = new Array(64);//8*8 
     var speed;
     var lastFired = 0;
+
+    var Bullet = new Phaser.Class({
+
+        Extends: Phaser.GameObjects.Image,
+
+        initialize:
+
+        function Bullet (scene)
+        {
+            Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
+
+            this.speed = Phaser.Math.GetSpeed(800, 1);
+        },
+
+        fire: function (x, y)
+        {
+            this.setPosition(x, y - 50);
+
+            this.setActive(true);
+            this.setVisible(true);
+        },
+
+        update: function (time, delta)
+        {
+            this.y -= this.speed * delta;
+
+            if (this.y < -50)
+            {
+                this.setActive(false);
+                this.setVisible(false);
+            }
+        }
+    });
 
     function preload ()
     {
@@ -56,11 +92,12 @@
     {
         this.add.image(400, 300, 'sky');
         this.add.image(400, 250, 'iceberg').setScale(3);
-        // 300~500 150~350
+        // 300~500, 150~350
+        
+        gun = this.physics.add.sprite(100, 500, 'gun').setScale(0.3);
+        bear = this.physics.add.sprite(320, 160, 'bear').setScale(2);
+        bear.body.setGravityY(50);
 
-        bear = this.physics.add.sprite(320, 160, 'bear');
-
-        gun = this.physics.add.sprite(100, 600, 'gun').setScale(0.3);
         gun.setCollideWorldBounds(true);
 
         this.anims.create({
@@ -85,39 +122,17 @@
 
         cursors = this.input.keyboard.createCursorKeys();
 
-        var Bullet = new Phaser.Class({
+        // forget about the grammar
+        fishs = this.physics.add.group({
+            key: 'star',
+            repeat: 11,
+            // TODO. random positions
+            setXY: { x: 12, y: 12, stepX: 70 }
+        });
 
-            Extends: Phaser.GameObjects.Image,
+        fishs.children.iterate(function (child) {
 
-            initialize:
-
-            function Bullet (scene)
-            {
-                Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
-
-                this.speed = Phaser.Math.GetSpeed(800, 1);
-            },
-
-            fire: function (x, y)
-            {
-                this.setPosition(x, y - 50);
-
-                this.setActive(true);
-                this.setVisible(true);
-
-                // Phaser.gameObject.physics.add.collider(bear, this);
-            },
-
-            update: function (time, delta)
-            {
-                this.y -= this.speed * delta;
-
-                if (this.y < -50)
-                {
-                    this.setActive(false);
-                    this.setVisible(false);
-                }
-            }
+            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
 
         });
 
@@ -126,6 +141,27 @@
         maxSize: 3,
         runChildUpdate: true
         });
+
+        // var bullet = bullets.get().setActive(true).setVisible(true);
+        // if (bullet)
+        // {
+        //     bullet.fire(gun.x, gun.y);
+            
+        // }
+    }
+
+    function hitCallback(bearHit, bulletHit)
+    {
+        alert("I am an alert box!!");
+        // Reduce health of enemy
+        if (bulletHit.active === true && bearHit.active === true)
+        {
+            console.log("Hitted!");
+
+            // Destroy bullet
+            bulletHit.setActive(false).setVisible(false);
+            
+        }
     }
 
     function update (time, delta)
@@ -146,8 +182,9 @@
 
             if (bullet)
             {
+                // alert("thisiiiii");
+                this.physics.add.collider(bear, bullet, hitCallback);
                 bullet.fire(gun.x, gun.y);
-
                 lastFired = time + 500;
             }
         }
