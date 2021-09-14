@@ -52,6 +52,24 @@
         );
     }
 
+    var Item = new Phaser.Class({
+        Extends: Phaser.GameObjects.Image,
+
+        constructor(scene)
+        {
+            Phaser.GameObjects.Image.call(this, scene, 0, 0, 'star');
+
+            // this.speed = Phaser.Math.GetSpeed(800, 1);
+        },
+        spawn: function (x, y)
+        {
+            this.setPosition(x, y);
+            this.setActive(true);
+            this.setVisible(true);
+        }
+
+    });
+
     function create ()
     {
         this.add.image(400, 300, 'sky');
@@ -141,15 +159,25 @@
         }
         if (cursors.space.isDown && time > lastFired)
         {
-            // move&shooting is not allowed
             var bullet = bullets.get();
-
+            console.log(bullet);
             if (bullet)
             {
                 bullet.fire(gun.x, gun.y);
 
                 lastFired = time + 500;
             }
+        }
+
+        if(cursors.up.isDown)
+        {
+            var xpos = Math.floor(Math.random() * 800);
+            var ypos = Math.floor(Math.random() * 800);
+            console.log(xpos + ", " + ypos);
+
+            var item = new Item(this);
+            console.log(item);
+            item.spawn(xpos, ypos);
         }
     }
 
