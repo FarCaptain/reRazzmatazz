@@ -21,7 +21,7 @@
         physics: {
         default: 'arcade',
             arcade: {
-                gravity: { y: 0 },
+                gravity: { y: 0 , x: 0 },
                 debug: false
             }
         },
@@ -32,14 +32,16 @@
             extend: { // dig this
                         bullets: null,
                         time: 0,
+                        testText :"",
                     }
         }
     };
 
     var game = new Phaser.Game(config);
     var fishPos = new Array(64);//8*8 
-    var speed;
     var lastFired = 0;
+    var bearStat = 'right';
+    const bearSpeed = 50;
 
     var Bullet = new Phaser.Class({
 
@@ -51,7 +53,7 @@
         {
             Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
 
-            this.speed = Phaser.Math.GetSpeed(800, 1);
+            this.speed = 1.5;
         },
 
         fire: function (x, y)
@@ -65,6 +67,7 @@
         update: function (time, delta)
         {
             this.y -= this.speed * delta;
+            testText.setText('pos : ' + this.x + " " + this.y );
 
             if (this.y < -50)
             {
@@ -91,19 +94,22 @@
     function create ()
     {
         this.add.image(400, 300, 'sky');
-        this.add.image(400, 250, 'iceberg').setScale(3);
+        // this.add.image(400, 250, 'iceberg').setScale(3);
         // 300~500, 150~350
         
         gun = this.physics.add.sprite(100, 560, 'gun').setScale(0.3);
-        bear = this.physics.add.sprite(320, 160, 'bear').setScale(2);
+        bear = this.physics.add.sprite(320, 160, 'bear');
+        bear.setCollideWorldBounds(true);
+
+        //used to test stuff
+        testText = this.add.text(16, 16, 'stat: right', { fontSize: '32px', fill: '#000' });
+
 
         bullets = this.physics.add.group({
             classType: Bullet,
             maxSize: 3,
             runChildUpdate: true
         });
-
-        // bear.body.setGravityY(50);
 
         gun.setCollideWorldBounds(true);
 
@@ -127,41 +133,65 @@
             repeat: -1
         });
 
+        bear.setVelocityX(bearSpeed);
+        bear.anims.play('right', true);
+
         cursors = this.input.keyboard.createCursorKeys();
 
         // forget about the grammar
-        fishs = this.physics.add.group({
-            key: 'star',
-            repeat: 11,
-            // TODO. random positions
-            setXY: { x: 12, y: 12, stepX: 70 }
-        });
+        // fishs = this.physics.add.group({
+        //     key: 'star',
+        //     repeat: 11,
+        //     // TODO. random positions
+        //     setXY: { x: 12, y: 12, stepX: 70 }
+        // });
 
-        fishs.children.iterate(function (child) {
+        // fishs.children.iterate(function (child) {
 
-            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+        //     child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
 
-        });
-
-        // var bullet = bullets.get().setActive(true).setVisible(true);
-        // if (bullet)
-        // {
-        //     bullet.fire(gun.x, gun.y);
-            
-        // }
+        // });
     }
 
     function hitCallback(bearHit, bulletHit)
     {
-        alert("I am an alert box!!");
+        // alert("I am an alert box!!");
         // Reduce health of enemy
         if (bulletHit.active === true && bearHit.active === true)
         {
-            console.log("Hitted!");
-
             // Destroy bullet
             bulletHit.setActive(false).setVisible(false);
             
+            // Bear turn counterclockwise
+            bearHit.setVelocityX(0);
+            bearHit.setVelocityY(0);
+            if (bearStat == "right")
+            {
+                // turn up
+                bearStat = "up";
+                bearHit.setVelocityY(-bearSpeed)
+                bear.anims.play('turn', true);
+            }
+            else if (bearStat == "left")
+            {
+                bearStat = "down";
+                bearHit.setVelocityY(bearSpeed)
+                bear.anims.play('turn', true);
+            }
+            else if (bearStat == "up")
+            {
+                bearStat = "left";
+                bearHit.setVelocityX(-bearSpeed)
+                bear.anims.play('left', true);
+            }
+            else if (bearStat == "down")
+            {
+                bearStat = "right";
+                bearHit.setVelocityX(bearSpeed)
+                bear.anims.play('right', true);
+            }
+
+            // testText.setText('Stat : ' + bearStat + " " + bearHit.body.velocity.x +" "+bearHit.body.velocity.y);
         }
     }
 
@@ -184,10 +214,9 @@
             if (bullet)
             {
                 // alert("thisiiiii");
-                
+                this.physics.add.collider(bear, bullet, hitCallback);
                 bullet.fire(gun.x, gun.y);
                 lastFired = time + 500;
-                this.physics.add.collider(bear, bullet, hitCallback);
             }
         }
     }
