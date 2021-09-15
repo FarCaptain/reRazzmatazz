@@ -107,6 +107,9 @@
         // 300~500, 150~350
         
         gun = this.physics.add.sprite(100, 560, 'gun').setScale(0.3);
+        gun.setCollideWorldBounds(true);
+
+        // this.physics.world.setBounds(0, 0, 800, 550);
         bear = this.physics.add.sprite(320, 160, 'bear');
         bear.setCollideWorldBounds(true);
 
@@ -119,8 +122,6 @@
             maxSize: 3,
             runChildUpdate: true
         });
-
-        gun.setCollideWorldBounds(true);
 
         this.anims.create({
             key: 'left',
@@ -159,7 +160,7 @@
 
         //     child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
 
-        // });
+        // }) ;
     }
 
     function hitCallback(bearHit, bulletHit)
