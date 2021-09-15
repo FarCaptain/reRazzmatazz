@@ -3,7 +3,7 @@
 <head> 
     <meta charset="UTF-8" />
     <title>Making your first Phaser 3 Game - Part 1</title>
-    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
     <style type="text/css">
         body {
             margin: 0;
@@ -38,7 +38,6 @@
     };
 
     var game = new Phaser.Game(config);
-    var fishPos = new Array(64);//8*8 
     var lastFired = 0;
     var bearStat = 'right';
     const bearSpeed = 50;
@@ -101,21 +100,13 @@
     }
 
     var Item = new Phaser.Class({
-        Extends: Phaser.GameObjects.Image,
+        Extends: Phaser.Physics.Arcade.Image,
 
-        constructor(scene)
+        initialize:
+        function Item(scene, xpos, ypos)
         {
-            Phaser.GameObjects.Image.call(this, scene, 0, 0, 'star');
-
-            // this.speed = Phaser.Math.GetSpeed(800, 1);
+            Phaser.Physics.Arcade.Image.call(this, scene, xpos, ypos, 'star');
         },
-        spawn: function (x, y)
-        {
-            this.setPosition(x, y);
-            this.setActive(true);
-            this.setVisible(true);
-        }
-
     });
 
     function create ()
@@ -163,9 +154,23 @@
 
         bear.setVelocityX(bearSpeed);
         bear.anims.play('right', true);
+        bear.onOverlap = true;
 
         cursors = this.input.keyboard.createCursorKeys();
 
+        gifts = this.physics.add.group({
+            classType: Item,
+            runChildUpdate: false
+        })
+
+        for (var i = 8; i >= 0; i--) {
+            var xpos = Math.floor(Math.random() * 800);
+            var ypos = Math.floor(Math.random() * 600);
+            // console.log(xpos + ", " + ypos);
+            var gift = new Item(this, xpos, ypos);
+            gifts.add(gift, true);
+        }
+        this.physics.add.overlap(bear, gifts, giftOverlap);
         // forget about the grammar
         // fishs = this.physics.add.group({
         //     key: 'star',
@@ -181,6 +186,11 @@
         // }) ;
     }
 
+    function giftOverlap(bearObject, giftObject)
+    {
+        giftObject.destroy();
+    }
+
     function hitCallback(bearHit, bulletHit)
     {
         // alert("I am an alert box!!");
@@ -188,8 +198,7 @@
         if (bulletHit.active === true && bearHit.active === true)
         {
             // Destroy bullet
-            bulletHit.setActive(false);
-            bulletHit.setVisible(false);
+            bulletHit.destroy();
             
             // Bear turn counterclockwise
             bearHit.setVelocityX(0);
@@ -238,7 +247,6 @@
         if (cursors.space.isDown && time > lastFired)
         {
             var bullet = bullets.get();
-            console.log(bullet);
             if (bullet)
             {
                 // alert("thisiiiii");
@@ -247,17 +255,6 @@
                 bullet.fire(gun.x, gun.y);
                 lastFired = time + 500;
             }
-        }
-
-        if(cursors.up.isDown)
-        {
-            var xpos = Math.floor(Math.random() * 800);
-            var ypos = Math.floor(Math.random() * 800);
-            console.log(xpos + ", " + ypos);
-
-            var item = new Item(this);
-            console.log(item);
-            item.spawn(xpos, ypos);
         }
     }
 
