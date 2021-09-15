@@ -21,8 +21,8 @@
         physics: {
         default: 'arcade',
             arcade: {
-                gravity: { y: 0 , x: 0 },
-                debug: false
+                gravity: { y: 0 },
+                debug: true
             }
         },
         scene: {
@@ -53,12 +53,20 @@
         {
             Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
 
-            this.speed = 1.5;
+            this.speed = 0.5;
+            this.direction = 0;
+            this.xSpeed = 0;
+            this.ySpeed = 0;
+            this.setSize(12, 12, true);
+            this.solidX = 0;
         },
 
         fire: function (x, y)
         {
             this.setPosition(x, y - 50);
+            // tilting happens after collision
+            // force the bullet to stay on the vertical trace
+            this.solidX = x;
 
             this.setActive(true);
             this.setVisible(true);
@@ -66,6 +74,7 @@
 
         update: function (time, delta)
         {
+            this.x = this.solidX;
             this.y -= this.speed * delta;
             testText.setText('pos : ' + this.x + " " + this.y );
 
@@ -160,7 +169,8 @@
         if (bulletHit.active === true && bearHit.active === true)
         {
             // Destroy bullet
-            bulletHit.setActive(false).setVisible(false);
+            bulletHit.setActive(false);
+            bulletHit.setVisible(false);
             
             // Bear turn counterclockwise
             bearHit.setVelocityX(0);
@@ -215,6 +225,7 @@
             {
                 // alert("thisiiiii");
                 this.physics.add.collider(bear, bullet, hitCallback);
+                // bullet.setBounce(0.2);
                 bullet.fire(gun.x, gun.y);
                 lastFired = time + 500;
             }
