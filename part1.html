@@ -22,21 +22,69 @@
         default: 'arcade',
             arcade: {
                 gravity: { y: 0 },
-                debug: false
+                debug: true
             }
         },
         scene: {
             preload: preload,
             create: create,
-            update: update
+            update: update,
+            extend: { // dig this
+                        bullets: null,
+                        time: 0,
+                        testText :"",
+                    }
         }
     };
 
     var game = new Phaser.Game(config);
-    var bullets;
-    var bear;
-    var speed;
+    var fishPos = new Array(64);//8*8 
     var lastFired = 0;
+    var bearStat = 'right';
+    const bearSpeed = 50;
+
+    var Bullet = new Phaser.Class({
+
+        Extends: Phaser.GameObjects.Image,
+
+        initialize:
+
+        function Bullet (scene)
+        {
+            Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
+
+            this.speed = 0.5;
+            this.direction = 0;
+            this.xSpeed = 0;
+            this.ySpeed = 0;
+            this.setSize(12, 12, true);
+            this.solidX = 0;
+        },
+
+        fire: function (x, y)
+        {
+            this.setPosition(x, y - 50);
+            // tilting happens after collision
+            // force the bullet to stay on the vertical trace
+            this.solidX = x;
+
+            this.setActive(true);
+            this.setVisible(true);
+        },
+
+        update: function (time, delta)
+        {
+            this.x = this.solidX;
+            this.y -= this.speed * delta;
+            testText.setText('pos : ' + this.x + " " + this.y );
+
+            if (this.y < -50)
+            {
+                this.setActive(false);
+                this.setVisible(false);
+            }
+        }
+    });
 
     function preload ()
     {
@@ -73,13 +121,25 @@
     function create ()
     {
         this.add.image(400, 300, 'sky');
-        this.add.image(400, 250, 'iceberg').setScale(3);
-        // 300~500 150~350
-
-        bear = this.physics.add.sprite(320, 160, 'bear');
-
-        gun = this.physics.add.sprite(100, 600, 'gun').setScale(0.3);
+        // this.add.image(400, 250, 'iceberg').setScale(3);
+        // 300~500, 150~350
+        
+        gun = this.physics.add.sprite(100, 560, 'gun').setScale(0.3);
         gun.setCollideWorldBounds(true);
+
+        // this.physics.world.setBounds(0, 0, 800, 550);
+        bear = this.physics.add.sprite(320, 160, 'bear');
+        bear.setCollideWorldBounds(true);
+
+        //used to test stuff
+        testText = this.add.text(16, 16, 'stat: right', { fontSize: '32px', fill: '#000' });
+
+
+        bullets = this.physics.add.group({
+            classType: Bullet,
+            maxSize: 3,
+            runChildUpdate: true
+        });
 
         this.anims.create({
             key: 'left',
@@ -101,49 +161,67 @@
             repeat: -1
         });
 
+        bear.setVelocityX(bearSpeed);
+        bear.anims.play('right', true);
+
         cursors = this.input.keyboard.createCursorKeys();
 
-        var Bullet = new Phaser.Class({
+        // forget about the grammar
+        // fishs = this.physics.add.group({
+        //     key: 'star',
+        //     repeat: 11,
+        //     // TODO. random positions
+        //     setXY: { x: 12, y: 12, stepX: 70 }
+        // });
 
-            Extends: Phaser.GameObjects.Image,
+        // fishs.children.iterate(function (child) {
 
-            initialize:
+        //     child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
 
-            function Bullet (scene)
+        // }) ;
+    }
+
+    function hitCallback(bearHit, bulletHit)
+    {
+        // alert("I am an alert box!!");
+        // Reduce health of enemy
+        if (bulletHit.active === true && bearHit.active === true)
+        {
+            // Destroy bullet
+            bulletHit.setActive(false);
+            bulletHit.setVisible(false);
+            
+            // Bear turn counterclockwise
+            bearHit.setVelocityX(0);
+            bearHit.setVelocityY(0);
+            if (bearStat == "right")
             {
-                Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
-
-                this.speed = Phaser.Math.GetSpeed(800, 1);
-            },
-
-            fire: function (x, y)
+                // turn up
+                bearStat = "up";
+                bearHit.setVelocityY(-bearSpeed)
+                bear.anims.play('turn', true);
+            }
+            else if (bearStat == "left")
             {
-                this.setPosition(x, y - 50);
-
-                this.setActive(true);
-                this.setVisible(true);
-
-                // Phaser.gameObject.physics.add.collider(bear, this);
-            },
-
-            update: function (time, delta)
+                bearStat = "down";
+                bearHit.setVelocityY(bearSpeed)
+                bear.anims.play('turn', true);
+            }
+            else if (bearStat == "up")
             {
-                this.y -= this.speed * delta;
-
-                if (this.y < -50)
-                {
-                    this.setActive(false);
-                    this.setVisible(false);
-                }
+                bearStat = "left";
+                bearHit.setVelocityX(-bearSpeed)
+                bear.anims.play('left', true);
+            }
+            else if (bearStat == "down")
+            {
+                bearStat = "right";
+                bearHit.setVelocityX(bearSpeed)
+                bear.anims.play('right', true);
             }
 
-        });
-
-        bullets = this.add.group({
-        classType: Bullet,
-        maxSize: 3,
-        runChildUpdate: true
-        });
+            // testText.setText('Stat : ' + bearStat + " " + bearHit.body.velocity.x +" "+bearHit.body.velocity.y);
+        }
     }
 
     function update (time, delta)
@@ -163,8 +241,10 @@
             console.log(bullet);
             if (bullet)
             {
+                // alert("thisiiiii");
+                this.physics.add.collider(bear, bullet, hitCallback);
+                // bullet.setBounce(0.2);
                 bullet.fire(gun.x, gun.y);
-
                 lastFired = time + 500;
             }
         }
