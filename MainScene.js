@@ -64,8 +64,8 @@ var MainScene = new Phaser.Class({
 
         //used to test stuff
         // this.testText = this.add.text(16, 16, 'stat: right', { fontSize: '32px', fill: '#000' });
-        this.scoreText = this.add.text(16, 16, 'SCORE: ' + this.score + "      GIFTS: " + (this.maxGiftCount - this.giftCollected), { fontSize: '20px', fill: '#000' });
-        this.lifeText = this.add.text(10, 570, this.life, { fontSize: '20px', fill: '#000' });
+        this.scoreText = this.add.text(16, 16, 'SCORE: ' + this.score + "      GIFTS: " + (this.maxGiftCount - this.giftCollected), { fontSize: '20px', fill: '#FFFFFF' });
+        this.lifeText = this.add.text(10, 570, this.life, { fontSize: '20px', fill: '#FFFFFF' });
 
         this.bullets = this.physics.add.group({
             classType: Bullet,
