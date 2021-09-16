@@ -52,16 +52,20 @@ var MainScene = new Phaser.Class({
 
 		this.add.image(400, 300, 'sky');
         
-        this.gun = this.physics.add.sprite(100, 560, 'gun');
+        this.gun = this.physics.add.sprite(100, 580, 'gun').setScale(1.2);
         this.gun.setCollideWorldBounds(true);
 
         // this.physics.world.setBounds(0, 0, 800, 550);
-        this.bear = this.physics.add.sprite(320, 220, 'bear');
+        this.bear = this.physics.add.sprite(320, 220, 'bear').setScale(1.5);
+        this.bear.setAngle(90);
         this.bear.setCollideWorldBounds(true);
+
+        this.droneLogo = this.add.image(18, 550, 'bear');
 
         //used to test stuff
         // this.testText = this.add.text(16, 16, 'stat: right', { fontSize: '32px', fill: '#000' });
-        this.scoreText = this.add.text(16, 16, 'Score: ' + this.score, { fontSize: '20px', fill: '#000' });
+        this.scoreText = this.add.text(16, 16, 'SCORE: ' + this.score + "      GIFTS: " + (this.maxGiftCount - this.giftCollected), { fontSize: '20px', fill: '#000' });
+        this.lifeText = this.add.text(10, 570, this.life, { fontSize: '20px', fill: '#000' });
 
         this.bullets = this.physics.add.group({
             classType: Bullet,
@@ -136,12 +140,15 @@ var MainScene = new Phaser.Class({
             {
                 this.game_over.play();
                 alert("Game Over!");
+                this.lifeText.setText(this.life);
                 location.reload();
             }
             else
             {
+
                 this.life_lost.play();
                 alert("Life lost");
+                this.lifeText.setText(this.life);
             }
 
             this.bearSpeed = this.initialBearSpeed;
@@ -150,6 +157,8 @@ var MainScene = new Phaser.Class({
             this.bear.setVelocityX(this.bearSpeed);
             this.bear.setVelocityY(0);
             this.bearStat = "right";
+            this.bear.setAngle(90);
+
 
             // if ( giftCOunt == 0 ) win
 
@@ -165,8 +174,8 @@ var MainScene = new Phaser.Class({
     {
         giftObject.destroy();
         this.giftCollected ++;
-        this.score += 20;
-        this.scoreText.setText("Score: " + this.score);
+        this.score += 100;
+        this.scoreText.setText('SCORE: ' + this.score + "      GIFTS: " + (this.maxGiftCount - this.giftCollected));
         this.get_gift.play();
 
         //try to generate a new one
@@ -209,21 +218,25 @@ var MainScene = new Phaser.Class({
             {
                 this.bearStat = "up";
                 bearHit.setVelocityY(-this.bearSpeed);
+                bearHit.setAngle(0);
             }
             else if (this.bearStat == "left")
             {
                 this.bearStat = "down";
                 bearHit.setVelocityY(this.bearSpeed)
+                bearHit.setAngle(180);
             }
             else if (this.bearStat == "up")
             {
                 this.bearStat = "left";
                 bearHit.setVelocityX(-this.bearSpeed)
+                bearHit.setAngle(-90);
             }
             else if (this.bearStat == "down")
             {
                 this.bearStat = "right";
                 bearHit.setVelocityX(this.bearSpeed)
+                bearHit.setAngle(90);
             }
 
             this.hitCount ++;
