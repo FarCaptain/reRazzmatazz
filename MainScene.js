@@ -23,6 +23,7 @@ var MainScene = new Phaser.Class({
 	preload: function()
 	{
         this.load.image('sky', 'assets/sky.png');
+        this.load.image('bg', 'assets/Pixel map draft 2.png');
         this.load.image('iceberg', 'assets/iceberg.png');
         this.load.image('present', 'assets/present.png');
         this.load.image('star', 'assets/star.png');
@@ -33,7 +34,7 @@ var MainScene = new Phaser.Class({
 
 	create:function()
 	{
-		this.add.image(400, 300, 'sky');
+		this.add.image(400, 300, 'bg');
         
         this.gun = this.physics.add.sprite(100, 560, 'gun');
         this.gun.setCollideWorldBounds(true);
