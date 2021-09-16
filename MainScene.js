@@ -7,9 +7,12 @@ var MainScene = new Phaser.Class({
         this.xMax = 452;
         this.yMin = 60;
         this.yMax = 452;
+        this.droneStartX = 100;
+        this.droneStartY = 400;
         this.life = 3;
         this.hitCount = 0;
         this.lastFired = 0;
+        this.fireInterval = 200;
         this.initialBearSpeed = 100;
         this.bearSpeed = this.initialBearSpeed;
         this.gunSpeed = 800;
@@ -56,7 +59,7 @@ var MainScene = new Phaser.Class({
         this.gun.setCollideWorldBounds(true);
 
         // this.physics.world.setBounds(0, 0, 800, 550);
-        this.bear = this.physics.add.sprite(100, 400, 'bear').setScale(1.5);
+        this.bear = this.physics.add.sprite(this.droneStartX, this.droneStartY, 'bear').setScale(1.5);
         this.bear.setCollideWorldBounds(true);
 
         this.droneLogo = this.add.image(21, 467, 'bear');
@@ -121,7 +124,7 @@ var MainScene = new Phaser.Class({
             {
                 this.bullet.fire(this.gun.x, this.gun.y);
                 this.snowball_throw.play();
-                this.lastFired = time + 500;
+                this.lastFired = time + this.fireInterval;
             }
         }
 
@@ -132,6 +135,7 @@ var MainScene = new Phaser.Class({
 
             if ( this.giftCollected == this.maxGiftCount )
             {
+                this.game_over.play();
                 alert("You Win!");
                 location.reload();
             }
@@ -151,8 +155,8 @@ var MainScene = new Phaser.Class({
             }
 
             this.bearSpeed = this.initialBearSpeed;
-            this.bear.x = 320;
-            this.bear.y = 220;
+            this.bear.x = this.droneStartX;
+            this.bear.y = this.droneStartY;
             this.bear.setVelocityX(this.bearSpeed);
             this.bear.setVelocityY(0);
             this.bearStat = "right";
@@ -234,7 +238,7 @@ var MainScene = new Phaser.Class({
             }
 
             this.hitCount ++;
-            this.bearSpeed = ( Math.tanh(this.hitCount * 0.3 - 4 ) + 2) * 1.5 * this.initialBearSpeed;
+            this.bearSpeed = ( Math.tanh(this.hitCount * 0.3 - 4 ) + 2) * 1.2 * this.initialBearSpeed;
         }
     }
 })
