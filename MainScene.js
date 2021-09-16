@@ -7,6 +7,11 @@ var MainScene = new Phaser.Class({
         this.xMax = 600;
         this.yMin = 100;
         this.yMax = 500;
+        this.hitCount = 0;
+        this.lastFired = 0;
+        this.initialBearSpeed = 50;
+        this.bearSpeed = this.initialBearSpeed;
+        this.bearStat = 'right';
     },
 
 	preload: function()
@@ -22,12 +27,6 @@ var MainScene = new Phaser.Class({
 
 	create:function()
 	{
-        this.hitCount = 0;
-		this.lastFired = 0;
-        this.initialBearSpeed = 50;
-        this.bearSpeed = this.initialBearSpeed;
-		this.bearStat = 'right';
-
 		this.add.image(400, 300, 'sky');
         
         this.gun = this.physics.add.sprite(100, 560, 'gun');
@@ -39,7 +38,6 @@ var MainScene = new Phaser.Class({
 
         //used to test stuff
         // this.testText = this.add.text(16, 16, 'stat: right', { fontSize: '32px', fill: '#000' });
-
 
         this.bullets = this.physics.add.group({
             classType: Bullet,
