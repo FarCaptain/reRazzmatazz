@@ -4,6 +4,6 @@ var Item = new Phaser.Class({
     initialize:
     function Item(scene, xpos, ypos)
     {
-        Phaser.Physics.Arcade.Image.call(this, scene, xpos, ypos, 'star');
+        Phaser.Physics.Arcade.Image.call(this, scene, xpos, ypos, 'present');
     },
 });
