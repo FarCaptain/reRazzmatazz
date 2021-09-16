@@ -10,8 +10,10 @@ var Bullet = new Phaser.Class({
         this.direction = 0;
         this.xSpeed = 0;
         this.ySpeed = 0;
-        this.setSize(12, 12, true);
+        this.setSize(5, 5, true);
         this.solidX = 0;
+        this.scaleX = 0.7;
+        this.scaleY = 0.7;
     },
 
     fire: function (x, y)
