@@ -6,7 +6,7 @@ var Bullet = new Phaser.Class({
     {
         Phaser.GameObjects.Image.call(this, scene, 0, 0, 'bullet');
 
-        this.speed = 0.5;
+        this.speed = 1.2;
         this.direction = 0;
         this.xSpeed = 0;
         this.ySpeed = 0;

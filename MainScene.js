@@ -9,9 +9,12 @@ var MainScene = new Phaser.Class({
         this.yMax = 500;
         this.hitCount = 0;
         this.lastFired = 0;
-        this.initialBearSpeed = 50;
+        this.initialBearSpeed = 100;
         this.bearSpeed = this.initialBearSpeed;
+        this.gunSpeed = 800;
         this.bearStat = 'right';
+        this.giftCount = 0;
+        this.maxGiftCount = 15;
     },
 
 	preload: function()
@@ -61,6 +64,11 @@ var MainScene = new Phaser.Class({
             // console.log(xpos + ", " + ypos);
             this.gift = new Item(this, xpos, ypos);
             this.gifts.add(this.gift, true);
+            this.giftCount ++;
+
+            this.physics.add.overlap(this.gift, this.gifts, (giftObject, giftSet) => {
+                this.giftSaperate(giftObject, giftSet);
+            });
         }
         this.physics.add.overlap(this.bear, this.gifts, (bearObject, bulletObject) => {
             this.giftOverlap(bearObject, bulletObject);
@@ -75,11 +83,11 @@ var MainScene = new Phaser.Class({
         this.gun.setVelocityX(0);
         if (this.cursors.left.isDown)
         {
-            this.gun.setVelocityX(-400);
+            this.gun.setVelocityX(-this.gunSpeed);
         }
         else if (this.cursors.right.isDown)
         {
-            this.gun.setVelocityX(400);
+            this.gun.setVelocityX(this.gunSpeed);
         }
         if (this.cursors.space.isDown && time > this.lastFired)
         {
@@ -97,7 +105,10 @@ var MainScene = new Phaser.Class({
             this.bear.x = 400;
             this.bear.y = 400;
             this.bear.setVelocity(0);
+            this.hitCount = 0;
             alert("Life lost");
+
+            // if ( giftCOunt == 0 ) win
 
             // // fake animation
             // bear.setAngle(90);
@@ -110,6 +121,26 @@ var MainScene = new Phaser.Class({
 	giftOverlap: function(bearObject, giftObject)
     {
         giftObject.destroy();
+
+        //try to generate a new one
+        if (this.giftCount < this.maxGiftCount)
+        {
+            var xpos = Math.floor(Math.random() * (this.xMax - this.xMin)) + this.xMin;
+            var ypos = Math.floor(Math.random() * (this.yMax - this.yMin)) + this.yMin;
+            // console.log(xpos + ", " + ypos);
+            this.gift = new Item(this, xpos, ypos);
+            this.gifts.add(this.gift, true);
+            this.giftCount ++;
+            this.physics.add.overlap(this.gift, this.gifts, (giftObject, giftSet) => {
+                this.giftSaperate(giftObject, giftSet);
+            });
+        }
+    },
+    
+    giftSaperate: function(giftObject, giftSet)
+    {
+        giftObject.destroy();
+        this.giftCount --;
     },
 
     hitCallback: function(bearHit, bulletHit)
