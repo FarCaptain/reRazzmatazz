@@ -34,7 +34,7 @@ var MainScene = new Phaser.Class({
 
 	create:function()
 	{
-		this.add.image(400, 300, 'bg');
+		this.add.image(400, 300, 'sky');
         
         this.gun = this.physics.add.sprite(100, 560, 'gun');
         this.gun.setCollideWorldBounds(true);
