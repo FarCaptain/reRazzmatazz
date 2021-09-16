@@ -16,7 +16,7 @@ var MainScene = new Phaser.Class({
         this.fireInterval = 200;
         this.initialBearSpeed = 100;
         this.bearSpeed = this.initialBearSpeed;
-        this.gunSpeed = 800;
+        this.gunSpeed = 400;
         this.bearStat = 'right';
         this.giftCount = 0;
         this.giftCollected = 0;
@@ -183,7 +183,7 @@ var MainScene = new Phaser.Class({
     {
         giftObject.destroy();
         this.giftCollected ++;
-        this.score += 100;
+        this.score += this.giftCollected * 100;
         this.scoreText.setText('SCORE: ' + this.score + "      GIFTS: " + (this.maxGiftCount - this.giftCollected));
         this.get_gift.play();
 
@@ -245,7 +245,9 @@ var MainScene = new Phaser.Class({
             }
 
             this.hitCount ++;
-            this.bearSpeed = ( Math.tanh(this.hitCount * 0.3 - 4 ) + 2) * 1.2 * this.initialBearSpeed;
+            // this.bearSpeed = ( Math.tanh(this.hitCount * 0.5 - 4 ) + 2) * 1.3 * this.initialBearSpeed;
+            // this.bearSpeed = this.initialBearSpeed + (this.hitCount * this.hitCount * 1.3);
+            this.bearSpeed = this.initialBearSpeed*1.5 + Math.tanh((this.hitCount * 50 - 100) * 0.005 ) * 100;
         }
     }
 })
