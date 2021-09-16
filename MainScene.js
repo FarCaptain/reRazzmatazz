@@ -7,6 +7,7 @@ var MainScene = new Phaser.Class({
         this.xMax = 600;
         this.yMin = 100;
         this.yMax = 500;
+        this.life = 3;
         this.hitCount = 0;
         this.lastFired = 0;
         this.initialBearSpeed = 100;
@@ -14,7 +15,9 @@ var MainScene = new Phaser.Class({
         this.gunSpeed = 800;
         this.bearStat = 'right';
         this.giftCount = 0;
+        this.giftCollected = 0;
         this.maxGiftCount = 15;
+        this.score = 0;
     },
 
 	preload: function()
@@ -36,11 +39,12 @@ var MainScene = new Phaser.Class({
         this.gun.setCollideWorldBounds(true);
 
         // this.physics.world.setBounds(0, 0, 800, 550);
-        this.bear = this.physics.add.sprite(320, 160, 'bear');
+        this.bear = this.physics.add.sprite(320, 220, 'bear');
         this.bear.setCollideWorldBounds(true);
 
         //used to test stuff
         // this.testText = this.add.text(16, 16, 'stat: right', { fontSize: '32px', fill: '#000' });
+        this.scoreText = this.add.text(16, 16, 'Score: ' + this.score, { fontSize: '20px', fill: '#000' });
 
         this.bullets = this.physics.add.group({
             classType: Bullet,
@@ -66,6 +70,7 @@ var MainScene = new Phaser.Class({
             this.gifts.add(this.gift, true);
             this.giftCount ++;
 
+
             this.physics.add.overlap(this.gift, this.gifts, (giftObject, giftSet) => {
                 this.giftSaperate(giftObject, giftSet);
             });
@@ -73,7 +78,7 @@ var MainScene = new Phaser.Class({
         this.physics.add.overlap(this.bear, this.gifts, (bearObject, bulletObject) => {
             this.giftOverlap(bearObject, bulletObject);
         });
-        this.physics.add.collider(this.bear, this.bullets, (bearHit, bulletHit) => {
+        this.physics.add.overlap(this.bear, this.bullets, (bearHit, bulletHit) => {
         	this.hitCallback(bearHit, bulletHit);
         });
 	},
@@ -102,11 +107,27 @@ var MainScene = new Phaser.Class({
         if (this.bear.x < this.xMin || this.bear.x > this.xMax || 
             this.bear.y < this.yMin || this.bear.y > this.yMax)
         {
-            this.bear.x = 400;
-            this.bear.y = 400;
-            this.bear.setVelocity(0);
             this.hitCount = 0;
-            alert("Life lost");
+
+            if ( this.giftCollected == this.maxGiftCount )
+            {
+                alert("You Win!");
+                location.reload();
+            }
+            else if ( --this.life == 0 )
+            {
+                alert("Game Over!");
+                location.reload();
+            }
+            else
+                alert("Life lost");
+
+            this.bearSpeed = this.initialBearSpeed;
+            this.bear.x = 320;
+            this.bear.y = 220;
+            this.bear.setVelocityX(this.bearSpeed);
+            this.bear.setVelocityY(0);
+            this.bearStat = "right";
 
             // if ( giftCOunt == 0 ) win
 
@@ -121,6 +142,9 @@ var MainScene = new Phaser.Class({
 	giftOverlap: function(bearObject, giftObject)
     {
         giftObject.destroy();
+        this.giftCollected ++;
+        this.score += 20;
+        this.scoreText.setText("Score: " + this.score);
 
         //try to generate a new one
         if (this.giftCount < this.maxGiftCount)
@@ -131,6 +155,8 @@ var MainScene = new Phaser.Class({
             this.gift = new Item(this, xpos, ypos);
             this.gifts.add(this.gift, true);
             this.giftCount ++;
+            // this.testText.setText('cnt : ' + this.giftCount );
+
             this.physics.add.overlap(this.gift, this.gifts, (giftObject, giftSet) => {
                 this.giftSaperate(giftObject, giftSet);
             });
@@ -141,6 +167,8 @@ var MainScene = new Phaser.Class({
     {
         giftObject.destroy();
         this.giftCount --;
+        // this.testText.setText('cnt : ' + this.giftCount );
+
     },
 
     hitCallback: function(bearHit, bulletHit)
