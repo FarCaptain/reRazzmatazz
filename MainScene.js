@@ -30,10 +30,26 @@ var MainScene = new Phaser.Class({
         this.load.image('bullet', 'assets/bullet.png');
         this.load.image('gun', 'assets/gun.png');
         this.load.image('bear', 'assets/santa_drone.png');
+
+        this.load.audio('BG_music', 'assets/Sounds/backgroundmusic.ogg');
+        this.load.audio('life_lost', 'assets/Sounds/droneoutofarea.ogg');
+        this.load.audio('game_over', 'assets/Sounds/gamefinish.ogg');
+        this.load.audio('get_gift', 'assets/Sounds/getgift.ogg');
+        this.load.audio('snowball_hit', 'assets/Sounds/snowballhitting.ogg');
+        this.load.audio('snowball_throw', 'assets/Sounds/throwsnowball.ogg');
 	},
 
 	create:function()
 	{
+        this.music = this.sound.add("BG_music");
+        this.life_lost = this.sound.add("life_lost");
+        this.game_over = this.sound.add("game_over");
+        this.get_gift = this.sound.add("get_gift");
+        this.snowball_hit = this.sound.add("snowball_hit");
+        this.snowball_throw = this.sound.add("snowball_throw");
+
+        this.music.play();
+
 		this.add.image(400, 300, 'sky');
         
         this.gun = this.physics.add.sprite(100, 560, 'gun');
@@ -101,6 +117,7 @@ var MainScene = new Phaser.Class({
             if (this.bullet)
             {
                 this.bullet.fire(this.gun.x, this.gun.y);
+                this.snowball_throw.play();
                 this.lastFired = time + 500;
             }
         }
@@ -117,11 +134,15 @@ var MainScene = new Phaser.Class({
             }
             else if ( --this.life == 0 )
             {
+                this.game_over.play();
                 alert("Game Over!");
                 location.reload();
             }
             else
+            {
+                this.life_lost.play();
                 alert("Life lost");
+            }
 
             this.bearSpeed = this.initialBearSpeed;
             this.bear.x = 320;
@@ -146,6 +167,7 @@ var MainScene = new Phaser.Class({
         this.giftCollected ++;
         this.score += 20;
         this.scoreText.setText("Score: " + this.score);
+        this.get_gift.play();
 
         //try to generate a new one
         if (this.giftCount < this.maxGiftCount)
@@ -180,7 +202,7 @@ var MainScene = new Phaser.Class({
         {
             // Destroy bullet
             bulletHit.destroy();
-
+            this.snowball_hit.play();
             bearHit.setVelocityX(0);
             bearHit.setVelocityY(0);
             if (this.bearStat == "right")
