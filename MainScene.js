@@ -9,6 +9,7 @@ var MainScene = new Phaser.Class({
         this.yMax = 452;
         this.droneStartX = 100;
         this.droneStartY = 400;
+        this.timedEvent;
         this.life = 3;
         this.hitCount = 0;
         this.lastFired = 0;
@@ -75,7 +76,6 @@ var MainScene = new Phaser.Class({
             runChildUpdate: true
         });
 
-        this.bear.setVelocityX(this.bearSpeed);
         this.bear.onOverlap = true;
 
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -104,7 +104,14 @@ var MainScene = new Phaser.Class({
         this.physics.add.overlap(this.bear, this.bullets, (bearHit, bulletHit) => {
         	this.hitCallback(bearHit, bulletHit);
         });
+
+        this.timedEvent = this.time.delayedCall(2000, this.onStart, [], this);
 	},
+
+    onStart: function()
+    {
+        this.bear.setVelocityX(this.bearSpeed);// drone starts
+    },
 
     update: function (time, delta)
     {
