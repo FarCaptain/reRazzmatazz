@@ -17,7 +17,7 @@ var MainScene = new Phaser.Class({
         this.initialBearSpeed = 100;
         this.bearSpeed = this.initialBearSpeed;
         this.gunSpeed = 400;
-        this.bearStat = 'right';
+        this.bearStat = 'hover';
         this.giftCount = 0;
         this.giftCollected = 0;
         this.maxGiftCount = 15;
@@ -105,11 +105,12 @@ var MainScene = new Phaser.Class({
         	this.hitCallback(bearHit, bulletHit);
         });
 
-        this.timedEvent = this.time.delayedCall(2000, this.onStart, [], this);
+        this.timedEvent = this.time.delayedCall(500, this.onStart, [], this);
 	},
 
     onStart: function()
     {
+        this.bearStat = 'right';
         this.bear.setVelocityX(this.bearSpeed);// drone starts
     },
 
