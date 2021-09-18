@@ -105,11 +105,12 @@ var MainScene = new Phaser.Class({
         	this.hitCallback(bearHit, bulletHit);
         });
 
-        this.timedEvent = this.time.delayedCall(500, this.onStart, [], this);
+        this.timedEvent = this.time.delayedCall(700, this.onStart, [], this);
 	},
 
     onStart: function()
     {
+        //TODO. 'press any key to continue' would make more sense
         this.bearStat = 'right';
         this.bear.setVelocityX(this.bearSpeed);// drone starts
     },
