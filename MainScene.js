@@ -17,7 +17,8 @@ var MainScene = new Phaser.Class({
         this.initialBearSpeed = 100;
         this.bearSpeed = this.initialBearSpeed;
         this.gunSpeed = 400;
-        this.bearStat = 'hover';
+        this.bearStat = 0; //0-right, 1-up, 2-left, 3-down
+        this.isHovering = true;
         this.giftCount = 0;
         this.giftCollected = 0;
         this.maxGiftCount = 15;
@@ -71,12 +72,14 @@ var MainScene = new Phaser.Class({
 
 		this.add.image(256, 256, 'bg');
 
+        // sprites
         this.gun = this.physics.add.sprite(100, 580, 'gun').setScale(1.2);
         this.gun.setCollideWorldBounds(true);
 
         // this.physics.world.setBounds(0, 0, 800, 550);
         this.bear = this.physics.add.sprite(this.droneStartX, this.droneStartY, 'bear').setScale(1.5);
         this.bear.setCollideWorldBounds(true);
+        // this.bear.on('animationcomplete', this.stopHovering);
 
         this.droneLogo = this.add.image(21, 467, 'bear');
 
@@ -126,7 +129,8 @@ var MainScene = new Phaser.Class({
     onStart: function()
     {
         //TODO. 'press any key to continue' would make more sense
-        this.bearStat = 'right';
+        this.isHovering = false;
+        this.bearStat = 0;
         this.bear.setVelocityX(this.bearSpeed);// drone starts
     },
 
@@ -185,15 +189,6 @@ var MainScene = new Phaser.Class({
             this.bear.setVelocityX(this.bearSpeed);
             this.bear.setVelocityY(0);
             this.bearStat = "right";
-
-
-            // if ( giftCOunt == 0 ) win
-
-            // // fake animation
-            // bear.setAngle(90);
-            // bear.setAngle(180);
-            // bear.setAngle(-90);
-            // bear.setAngle(0);
         }
     },
 
@@ -210,11 +205,9 @@ var MainScene = new Phaser.Class({
         {
             var xpos = Math.floor(Math.random() * (this.xMax - this.xMin)) + this.xMin;
             var ypos = Math.floor(Math.random() * (this.yMax - this.yMin)) + this.yMin;
-            // console.log(xpos + ", " + ypos);
             this.gift = new Item(this, xpos, ypos);
             this.gifts.add(this.gift, true);
             this.giftCount ++;
-            // this.testText.setText('cnt : ' + this.giftCount );
 
             this.physics.add.overlap(this.gift, this.gifts, (giftObject, giftSet) => {
                 this.giftSaperate(giftObject, giftSet);
@@ -226,13 +219,10 @@ var MainScene = new Phaser.Class({
     {
         giftObject.destroy();
         this.giftCount --;
-        // this.testText.setText('cnt : ' + this.giftCount );
-
     },
 
     hitCallback: function(bearHit, bulletHit)
     {
-        // alert("I am an alert box!!");
         // Reduce health of enemy
         if (bulletHit.active === true && bearHit.active === true)
         {
@@ -240,34 +230,38 @@ var MainScene = new Phaser.Class({
             bulletHit.destroy();
             this.snowball_hit.play();
 
-            bearHit.anims.play('rotate', true);
-            bearHit.setVelocityX(0);
-            bearHit.setVelocityY(0);
-            if (this.bearStat == "right")
-            {
-                this.bearStat = "up";
-                bearHit.setVelocityY(-this.bearSpeed);
-            }
-            else if (this.bearStat == "left")
-            {
-                this.bearStat = "down";
-                bearHit.setVelocityY(this.bearSpeed)
-            }
-            else if (this.bearStat == "up")
-            {
-                this.bearStat = "left";
-                bearHit.setVelocityX(-this.bearSpeed)
-            }
-            else if (this.bearStat == "down")
-            {
-                this.bearStat = "right";
-                bearHit.setVelocityX(this.bearSpeed)
-            }
+            if ( this.isHovering )
+                return;
+
+            this.isHovering = true;
+
+            // counterclockwise
+            this.bearStat += 1;
+            this.bearStat %= 4;
 
             this.hitCount ++;
             // this.bearSpeed = ( Math.tanh(this.hitCount * 0.5 - 4 ) + 2) * 1.3 * this.initialBearSpeed;
             // this.bearSpeed = this.initialBearSpeed + (this.hitCount * this.hitCount * 1.3);
             this.bearSpeed = this.initialBearSpeed*1.5 + Math.tanh((this.hitCount * 50 - 100) * 0.005 ) * 100;
+
+            // swap x y speed
+            var vec = bearHit.body.velocity;
+            var x = 0, y = 0;
+            if( vec.y == 0 )//change sign
+                x = (vec.x < 0) ? this.bearSpeed : -this.bearSpeed;
+            else
+                y = (vec.y < 0) ? -this.bearSpeed : this.bearSpeed;
+
+            bearHit.setVelocity(0);
+
+            bearHit.anims.play('rotate', true);
+            this.time.addEvent({
+                delay: 500, // in ms
+                callback: () => {
+                    bearHit.setVelocity(y, x);
+                    this.isHovering = false;
+                }
+            })
         }
     }
 })
