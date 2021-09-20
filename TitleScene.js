@@ -26,17 +26,12 @@ create:function()
     this.skipText = this.add.text(340, 10, "press space to skip", { fontSize: '13px', fill: '#f8b229' });
 
 
-    this.video.on('complete', function(video){
-        this.video.destroy();
-        this.skipText.setText("press space to START!");
-        this.isPlaying = false;
+    this.video.on('complete', function(text = this.skipText){
+        this.stop();
     });
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.pressTime = 0;
-
-    //  x, y, anchor x, anchor y, scale x, scale y
-    // video.addToWorld();
 },
 
 update:function(time)
@@ -45,6 +40,7 @@ update:function(time)
     {
         if ( this.isPlaying )
         {
+            this.video.stop();
             this.video.destroy();
             this.skipText.setText("press space to START!");
             this.isPlaying = false;
