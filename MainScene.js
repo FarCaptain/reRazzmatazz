@@ -32,8 +32,8 @@ var MainScene = new Phaser.Class({
         this.load.image('present', 'assets/present.png');
         this.load.image('star', 'assets/star.png');
         this.load.image('bullet', 'assets/bullet.png');
-        this.load.image('gun', 'assets/gun.png');
-        this.load.image('bear', 'assets/santa_drone.png');
+        this.load.spritesheet('gun', 'assets/gun.png', { frameWidth: 32, frameHeight: 32 } );
+        this.load.spritesheet('bear', 'assets/drone_rotate_loop.png', { frameWidth: 32, frameHeight: 32 } );
 
         this.load.audio('BG_music', 'assets/Sounds/backgroundmusic.ogg');
         this.load.audio('life_lost', 'assets/Sounds/droneoutofarea.ogg');
@@ -45,6 +45,7 @@ var MainScene = new Phaser.Class({
 
 	create:function()
 	{
+        // sounds
         this.music = this.sound.add("BG_music");
         this.life_lost = this.sound.add("life_lost");
         this.game_over = this.sound.add("game_over");
@@ -52,10 +53,24 @@ var MainScene = new Phaser.Class({
         this.snowball_hit = this.sound.add("snowball_hit");
         this.snowball_throw = this.sound.add("snowball_throw");
 
+        // animations
+        this.anims.create({
+            key: 'throw',
+            frames: this.anims.generateFrameNumbers('gun', { start: 1, end: 0 }),
+            frameRate: 5,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'rotate',
+            frames: this.anims.generateFrameNumbers('bear', { start: 0, end: 4 }),
+            frameRate: 10,
+            repeat: 0
+        });
+
         this.music.play();
 
 		this.add.image(256, 256, 'bg');
-        
+
         this.gun = this.physics.add.sprite(100, 580, 'gun').setScale(1.2);
         this.gun.setCollideWorldBounds(true);
 
@@ -128,6 +143,7 @@ var MainScene = new Phaser.Class({
         }
         if (this.cursors.space.isDown && time > this.lastFired)
         {
+            this.gun.anims.play('throw', true);
             this.bullet = this.bullets.get();
             if (this.bullet)
             {
@@ -223,6 +239,8 @@ var MainScene = new Phaser.Class({
             // Destroy bullet
             bulletHit.destroy();
             this.snowball_hit.play();
+
+            bearHit.anims.play('rotate', true);
             bearHit.setVelocityX(0);
             bearHit.setVelocityY(0);
             if (this.bearStat == "right")
