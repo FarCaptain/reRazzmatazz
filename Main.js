@@ -1,3 +1,5 @@
+var TitleScene = new TitleScene();
+
 var config = {
         type: Phaser.AUTO,
         width: 512,
@@ -9,11 +11,12 @@ var config = {
                 debug: false
             }
         },
-        scene: [MainScene]
+        // scene: [MainScene, TitleScene]
     };
 
 const game = new Phaser.Game(config);
 
-// game.scene.add('mainscene', MainScene);
+game.scene.add('mainscene', MainScene);
+game.scene.add('titlescene', TitleScene);
 
-// game.scene.start('mainscene');
+game.scene.start('titlescene');
