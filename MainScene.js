@@ -192,30 +192,29 @@ var MainScene = new Phaser.Class({
             if ( this.giftCollected == this.maxGiftCount )
             {
                 this.game_over.play();
-                alert("You Win!");
-                location.reload();
+                this.scene.start('youwinscene');
             }
             else if ( --this.life == 0 )
             {
                 this.game_over.play();
-                alert("Game Over!");
+                // alert("Game Over!");
                 this.lifeText.setText(this.life);
-                location.reload();
+                // location.reload();
+                this.scene.start('gameoverscene');
             }
             else
             {
-
                 this.life_lost.play();
-                alert("Life lost");
+                // alert("Life lost");
                 this.lifeText.setText(this.life);
+                this.bear.x = this.droneStartX;
+                this.bear.y = this.droneStartY;
+                this.bearSpeed = this.initialBearSpeed;
+                this.bear.setVelocity(0);
+                this.isHovering = true;
+                // TODO. play falling anim + delay
+                this.timedEvent = this.time.delayedCall(700, this.onStart, [], this);
             }
-
-            this.bearSpeed = this.initialBearSpeed;
-            this.bear.x = this.droneStartX;
-            this.bear.y = this.droneStartY;
-            this.bear.setVelocityX(this.bearSpeed);
-            this.bear.setVelocityY(0);
-            this.bearStat = "right";
         }
     },
 

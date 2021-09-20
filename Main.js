@@ -18,5 +18,7 @@ const game = new Phaser.Game(config);
 
 game.scene.add('mainscene', MainScene);
 game.scene.add('titlescene', TitleScene);
+game.scene.add('gameoverscene', GameOverScene);
+game.scene.add('youwinscene', YouWinScene);
 
 game.scene.start('titlescene');
