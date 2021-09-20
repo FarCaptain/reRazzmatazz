@@ -35,6 +35,7 @@ var MainScene = new Phaser.Class({
         this.load.image('bullet', 'assets/bullet.png');
         this.load.spritesheet('gun', 'assets/gun.png', { frameWidth: 32, frameHeight: 32 } );
         this.load.spritesheet('bear', 'assets/drone_rotate_loop.png', { frameWidth: 32, frameHeight: 32 } );
+        this.load.spritesheet('bird', 'assets/bird.png', { frameWidth: 32, frameHeight: 32 } );
 
         this.load.audio('BG_music', 'assets/Sounds/backgroundmusic.ogg');
         this.load.audio('life_lost', 'assets/Sounds/droneoutofarea.ogg');
@@ -67,6 +68,12 @@ var MainScene = new Phaser.Class({
             frameRate: 10,
             repeat: 0
         });
+        this.anims.create({
+            key: 'fly',
+            frames: this.anims.generateFrameNumbers('bird', { start: 0, end: 3 }),
+            frameRate: 3,
+            repeat: -1
+        });
 
         this.music.play();
 
@@ -80,6 +87,11 @@ var MainScene = new Phaser.Class({
         this.bear = this.physics.add.sprite(this.droneStartX, this.droneStartY, 'bear').setScale(1.5);
         this.bear.setCollideWorldBounds(true);
         // this.bear.on('animationcomplete', this.stopHovering);
+
+        this.birds = this.physics.add.group({
+            classType: Bird,
+            runChildUpdate: true
+        })
 
         this.droneLogo = this.add.image(21, 467, 'bear');
 
@@ -131,7 +143,7 @@ var MainScene = new Phaser.Class({
         //TODO. 'press any key to continue' would make more sense
         this.isHovering = false;
         this.bearStat = 0;
-        this.bear.setVelocityX(this.bearSpeed);// drone starts
+        this.bear.setVelocityX(this.bearSpeed);// drone starts go right
     },
 
     update: function (time, delta)
@@ -154,6 +166,21 @@ var MainScene = new Phaser.Class({
                 this.bullet.fire(this.gun.x, this.gun.y);
                 this.snowball_throw.play();
                 this.lastFired = time + this.fireInterval;
+            }
+        }
+
+        //test Birds
+        if ( this.cursors.up.isDown )
+        {
+            this.bird = this.birds.get();
+            this.bird.anims.play('fly', true);
+            if( this.bird )
+            {
+                this.bird.fly(0, 0, 500, 500, 100);
+
+                this.physics.add.overlap(this.bear, this.bird, (bearHit, birdHit) => {
+                    this.hitCallback(bearHit, birdHit);
+                });
             }
         }
 
