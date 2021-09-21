@@ -34,7 +34,7 @@ var MainScene = new Phaser.Class({
         this.load.image('star', 'assets/star.png');
         this.load.image('bullet', 'assets/bullet.png');
         this.load.spritesheet('gun', 'assets/gun.png', { frameWidth: 32, frameHeight: 32 } );
-        this.load.spritesheet('bear', 'assets/drone_rotate_loop.png', { frameWidth: 32, frameHeight: 32 } );
+        this.load.spritesheet('bear', 'assets/drone_loop.png', { frameWidth: 32, frameHeight: 32 } );
         this.load.spritesheet('bird', 'assets/bird.png', { frameWidth: 32, frameHeight: 32 } );
 
         this.load.audio('BG_music', 'assets/Sounds/backgroundmusic.ogg');
@@ -43,6 +43,7 @@ var MainScene = new Phaser.Class({
         this.load.audio('get_gift', 'assets/Sounds/getgift.ogg');
         this.load.audio('snowball_hit', 'assets/Sounds/snowballhitting.ogg');
         this.load.audio('snowball_throw', 'assets/Sounds/throwsnowball.ogg');
+        this.load.audio('drone_rotate', 'assets/Sounds/dronerotate.ogg');
 	},
 
 	create:function()
@@ -53,6 +54,7 @@ var MainScene = new Phaser.Class({
         this.game_over = this.sound.add("game_over");
         this.get_gift = this.sound.add("get_gift");
         this.snowball_hit = this.sound.add("snowball_hit");
+        this.drone_rotate = this.sound.add("drone_rotate");
         this.snowball_throw = this.sound.add("snowball_throw");
 
         // animations
@@ -63,9 +65,21 @@ var MainScene = new Phaser.Class({
             repeat: 0
         });
         this.anims.create({
+            key: 'idle',
+            frames: this.anims.generateFrameNumbers('bear', { start: 0, end: 0 }),
+            frameRate: 1,
+            repeat: 0
+        });
+        this.anims.create({
             key: 'rotate',
             frames: this.anims.generateFrameNumbers('bear', { start: 0, end: 4 }),
             frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'fall',
+            frames: this.anims.generateFrameNumbers('bear', { start: 5, end: 9 }),
+            frameRate: 15,
             repeat: 0
         });
         this.anims.create({
@@ -177,7 +191,6 @@ var MainScene = new Phaser.Class({
             if( this.bird )
             {
                 this.bird.fly(0, 0, 500, 500, 100);
-
                 this.physics.add.overlap(this.bear, this.bird, (bearHit, birdHit) => {
                     this.hitCallback(bearHit, birdHit);
                 });
@@ -187,6 +200,9 @@ var MainScene = new Phaser.Class({
         if (this.bear.x < this.xMin || this.bear.x > this.xMax || 
             this.bear.y < this.yMin || this.bear.y > this.yMax)
         {
+            if( this.isHovering )
+                return;
+
             this.hitCount = 0;
 
             if ( this.giftCollected == this.maxGiftCount )
@@ -205,15 +221,23 @@ var MainScene = new Phaser.Class({
             else
             {
                 this.life_lost.play();
-                // alert("Life lost");
-                this.lifeText.setText(this.life);
-                this.bear.x = this.droneStartX;
-                this.bear.y = this.droneStartY;
-                this.bearSpeed = this.initialBearSpeed;
-                this.bear.setVelocity(0);
+                this.bear.anims.play('fall', true);
                 this.isHovering = true;
+                this.bear.setVelocity(0);
+                this.time.addEvent({
+                    delay: 700, // in ms
+                    callback: () => {
+                        this.bear.anims.play('idle', true);
+                        this.isHovering = false;
+                        this.bear.x = this.droneStartX;
+                        this.bear.y = this.droneStartY;
+                        this.bearSpeed = this.initialBearSpeed;
+                        this.timedEvent = this.time.delayedCall(700, this.onStart, [], this);
+                    }
+                })
+                this.lifeText.setText(this.life);
                 // TODO. play falling anim + delay
-                this.timedEvent = this.time.delayedCall(700, this.onStart, [], this);
+                // alert("Life lost");
             }
         }
     },
@@ -255,6 +279,7 @@ var MainScene = new Phaser.Class({
             // Destroy bullet
             bulletHit.destroy();
             this.snowball_hit.play();
+            this.drone_rotate.play();
 
             if ( this.isHovering )
                 return;

@@ -11,6 +11,7 @@ Extends: Phaser.Scene,
 preload: function()
 {
     this.load.image('bg', 'assets/Pixel map draft 2.png');
+    this.load.image('instructions', 'assets/instructions.png');
     this.add.text(10, 10, "Now Loading ...", { font: "20px Arial", fill: "#f8b229" });
     this.load.video('intro', 'assets/title.mp4');
 },
@@ -18,6 +19,7 @@ preload: function()
 create:function()
 {
     this.add.image(256, 256, 'bg');
+    this.add.image(256, 256, 'instructions').setScale(0.8);
 
     this.video = this.add.video(256, 256, 'intro');
     this.video.play( );
