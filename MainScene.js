@@ -14,6 +14,9 @@ var MainScene = new Phaser.Class({
         this.hitCount = 0;
         this.lastFired = 0;
         this.fireInterval = 200;
+        this.lastSpawned = 0;
+        this.spawnInterval = 1000 ;
+        this.rand = 0;
         this.initialBearSpeed = 100;
         this.bearSpeed = this.initialBearSpeed;
         this.gunSpeed = 400;
@@ -104,6 +107,7 @@ var MainScene = new Phaser.Class({
 
         this.birds = this.physics.add.group({
             classType: Bird,
+            maxSize: 8,
             runChildUpdate: true
         })
 
@@ -183,17 +187,26 @@ var MainScene = new Phaser.Class({
             }
         }
 
-        //test Birds
-        if ( this.cursors.up.isDown )
+        
+        this.spawnInterval = (5 - (this.maxGiftCount - this.giftCollected) * (4 /15)) * 1000;
+        console.log(this.spawnInterval);
+        console.log(this.giftCount );
+
+        if (time > this.lastSpawned)
         {
             this.bird = this.birds.get();
             this.bird.anims.play('fly', true);
-            if( this.bird )
-            {
-                this.bird.fly(0, 0, 500, 500, 100);
+            if (this.bird)
+            { 
+                var rand = Math.floor(Math.random() * 3 + 1);
+                if(rand == 1)this.bird.fly(0, Math.floor(Math.random() * 512), 512, Math.floor(Math.random() * 512), 100);
+                if(rand == 2)this.bird.fly(512, Math.floor(Math.random() * 512), 0, Math.floor(Math.random() * 512), 100);
+                if(rand == 3)this.bird.fly(Math.floor(Math.random() * 512), 0, Math.floor(Math.random() * 512), 512, 100);
+                if(rand == 4)this.bird.fly(Math.floor(Math.random() * 512), 512, Math.floor(Math.random() * 512), 0, 100);
                 this.physics.add.overlap(this.bear, this.bird, (bearHit, birdHit) => {
                     this.hitCallback(bearHit, birdHit);
                 });
+                this.lastSpawned = time + this.spawnInterval;
             }
         }
 

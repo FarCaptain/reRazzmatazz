@@ -33,7 +33,7 @@ var Bird = new Phaser.Class({
             this.flipX = true;
 
         this.setVelocity(this.xSpeed, this.ySpeed);
-        this.setAngle(this.direction / Math.PI * 180);
+        // this.setAngle(this.direction / Math.PI * 180);
     },
 
     update: function (time, delta)
