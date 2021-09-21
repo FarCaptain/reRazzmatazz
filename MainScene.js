@@ -242,7 +242,7 @@ var MainScene = new Phaser.Class({
                 this.time.addEvent({
                     delay: 700, // in ms
                     callback: () => {
-                        this.bear.anims.play('idle', true);
+                        this.bear.anims.play('idle', true); 
                         this.bear.x = this.droneStartX;
                         this.bear.y = this.droneStartY;
                         this.bearSpeed = this.initialBearSpeed;
