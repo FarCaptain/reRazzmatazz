@@ -11,5 +11,14 @@ var GameOverScene = new Phaser.Class({
     {
         this.add.image(256, 256, 'bg');
         this.text = this.add.text(256, 256, "Game Over!", { fontSize: '25px', fill: '#f8b229' });
+        this.cursors = this.input.keyboard.createCursorKeys();
+    },
+    
+    update:function()
+    {
+        if (this.cursors.space.isDown)
+        {
+            location.reload();
+        }
     },
 });

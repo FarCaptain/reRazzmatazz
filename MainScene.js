@@ -42,7 +42,8 @@ var MainScene = new Phaser.Class({
 
         this.load.audio('BG_music', 'assets/Sounds/backgroundmusic.ogg');
         this.load.audio('life_lost', 'assets/Sounds/droneoutofarea.ogg');
-        this.load.audio('game_over', 'assets/Sounds/gamefinish.ogg');
+        this.load.audio('you_win', 'assets/Sounds/gamefinish.ogg');
+        this.load.audio('game_over', 'assets/Sounds/lose.ogg');
         this.load.audio('get_gift', 'assets/Sounds/getgift.ogg');
         this.load.audio('snowball_hit', 'assets/Sounds/snowballhitting.ogg');
         this.load.audio('snowball_throw', 'assets/Sounds/throwsnowball.ogg');
@@ -54,6 +55,7 @@ var MainScene = new Phaser.Class({
         // sounds
         this.music = this.sound.add("BG_music");
         this.life_lost = this.sound.add("life_lost");
+        this.you_win = this.sound.add("you_win");
         this.game_over = this.sound.add("game_over");
         this.get_gift = this.sound.add("get_gift");
         this.snowball_hit = this.sound.add("snowball_hit");
@@ -220,7 +222,7 @@ var MainScene = new Phaser.Class({
 
             if ( this.giftCollected == this.maxGiftCount )
             {
-                this.game_over.play();
+                this.you_win.play();
                 this.scene.start('youwinscene');
             }
             else if ( --this.life == 0 )
@@ -241,7 +243,6 @@ var MainScene = new Phaser.Class({
                     delay: 700, // in ms
                     callback: () => {
                         this.bear.anims.play('idle', true);
-                        this.isHovering = false;
                         this.bear.x = this.droneStartX;
                         this.bear.y = this.droneStartY;
                         this.bearSpeed = this.initialBearSpeed;
