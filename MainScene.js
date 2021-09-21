@@ -188,10 +188,10 @@ var MainScene = new Phaser.Class({
         }
 
         
-        this.spawnInterval = (5 - (this.maxGiftCount - this.giftCollected) * (4 /15)) * 1000;
+        this.spawnInterval = (1 + (this.maxGiftCount - this.giftCollected) * (4 /15)) * 1000;
         console.log(this.spawnInterval);
         console.log(this.giftCount );
-
+ 
         if (time > this.lastSpawned)
         {
             this.bird = this.birds.get();
