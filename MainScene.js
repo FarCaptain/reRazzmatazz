@@ -30,11 +30,8 @@ var MainScene = new Phaser.Class({
 
 	preload: function()
 	{
-        this.load.image('sky', 'assets/sky.png');
         this.load.image('bg', 'assets/Pixel map draft 2.png');
-        this.load.image('iceberg', 'assets/iceberg.png');
         this.load.image('present', 'assets/present.png');
-        this.load.image('star', 'assets/star.png');
         this.load.image('bullet', 'assets/bullet.png');
         this.load.spritesheet('gun', 'assets/gun.png', { frameWidth: 32, frameHeight: 32 } );
         this.load.spritesheet('bear', 'assets/drone_loop.png', { frameWidth: 32, frameHeight: 32 } );
@@ -191,8 +188,8 @@ var MainScene = new Phaser.Class({
 
         
         this.spawnInterval = (1 + (this.maxGiftCount - this.giftCollected) * (4 /15)) * 1000;
-        console.log(this.spawnInterval);
-        console.log(this.giftCount );
+        // console.log(this.spawnInterval);
+        // console.log(this.giftCount );
  
         if (time > this.lastSpawned)
         {
